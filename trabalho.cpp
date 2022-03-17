@@ -1,6 +1,8 @@
 #include <iostream>
 #include <string>
 #include <vector>
+#include <cmath>
+
 using namespace std;
 
 class Vertice
@@ -17,17 +19,8 @@ public:
     }
 };
 
-// Retorna o número de vértices declarado no campo DIMENSION.
-// Assume que a string está no formato "DIMENSION : <numVertices>".
-int extrairNumVertices(string stringNumVertices)
-{
-    int i = stringNumVertices.find(":");
-    stringNumVertices = stringNumVertices.substr(i + 1);
-    return stoi(stringNumVertices);
-}
-
 // Separa a string em uma lista de tokens
-// Tokens são separados por espaço na string original
+// Tokens são separados por um espaço na string original
 vector<string> tokenizar(string str)
 {
     vector<string> listaTokens;
@@ -58,23 +51,63 @@ vector<string> tokenizar(string str)
     return listaTokens;
 }
 
-// Inicializa a lista de vértices utilizando entradas
+// Retorna o número de vértices declarado no campo DIMENSION.
+// Assume que a string está no formato "DIMENSION : <numVertices>".
+int extrairNumVertices(string stringNumVertices)
+{
+    int i = stringNumVertices.find(":");
+    stringNumVertices = stringNumVertices.substr(i + 1);
+    return stoi(stringNumVertices);
+}
+
+class PCVSolver
+{
+public:
+    vector<Vertice> vertices;
+    int numVertices;
+    vector<int> caminho;
+
+    // Inicializa a classe com a lista e a quantidade de vértices
+    PCVSolver(vector<Vertice> listaVertices, int n) {
+        vertices = listaVertices;
+        numVertices = n;
+        caminho.resize(numVertices);
+    }
+
+    // Retorna a distância entre os vértices v1 e v2.
+    float distancia(int v1, int v2){
+        int deltaX = vertices[v2].x - vertices[v1].x;
+        int deltaY = vertices[v2].y - vertices[v1].y;
+
+        return sqrt((deltaX * deltaX) + (deltaY * deltaY));
+    }
+
+    // Imprime as coordenadas de todos os vértices na tela
+    void printVertices(){
+        for (int j = 1; j < numVertices + 1; j++)
+        {
+            cout << j << " => x: " << vertices[j].x << " y: " << vertices[j].y << "\n";
+        }
+    }
+};
+
+// Inicializa a lista de vértices utilizando linhas de entrada
 // da linha de comando.
-void inicializar(vector<Vertice> &listaVert)
+// Assume que a entrada está formatada de acordo com os exemplos.
+void inicializar(vector<Vertice> &listaVertices, int &numVertices)
 {
     string linhaEntrada;
     vector<string> listaTokens;
-    int n;
 
     getline(cin, linhaEntrada); // NAME
     getline(cin, linhaEntrada); // TYPE
     getline(cin, linhaEntrada); // COMMENT
 
     getline(cin, linhaEntrada); // DIMENSION
-    n = extrairNumVertices(linhaEntrada);
-    cout << "\n############ " << n << " ############\n";
-    listaVert.resize(n + 1);
-    cout << "\n############ " << listaVert.size() << " ############\n";
+    numVertices = extrairNumVertices(linhaEntrada);
+    cout << "\n############ " << numVertices << " ############\n";
+    listaVertices.resize(numVertices + 1);
+    cout << "\n############ " << listaVertices.size() << " ############\n";
 
     getline(cin, linhaEntrada); // EDGE_WEIGHT_TYPE
     getline(cin, linhaEntrada); // NODE_COORD_SECTION
@@ -85,34 +118,20 @@ void inicializar(vector<Vertice> &listaVert)
     while (linhaEntrada != "EOF")
     {
         listaTokens = tokenizar(linhaEntrada);
-
-        // for (int j = 0; j < listaTokens.size(); j++)
-        // {
-        //     cout << listaTokens[j] << " a ";
-        // }
-        // cout << "\n";
-        // cout << linhaEntrada << " num " << i << "\n";
-        // cout << "X:" << listaVert[i].x << " Y:" << listaVert[i].y << "\n";
-
-        listaVert[i] = Vertice(stoi(listaTokens[1]), stoi(listaTokens[2]));
-
+        listaVertices[i] = Vertice(stoi(listaTokens[1]), stoi(listaTokens[2]));
         i++;
         getline(cin, linhaEntrada);
-        // TODO: ta tendo q apertar enter dps, talvez tem que arrumar
     }
 }
 
 int main()
 {
-    vector<Vertice> listaVert;
-    inicializar(listaVert);
+    vector<Vertice> listaVertices;
+    int numVertices;
+    inicializar(listaVertices, numVertices);
+    PCVSolver pcvSolver(listaVertices, numVertices);
 
-    for (int j = 0; j < listaVert.size(); j++)
-    {
-        cout << j << " => x: " << listaVert[j].x << " y: " << listaVert[j].y << "\n";
-    }
-
-    cout << "Inicialização dos vértices completa\n";
+    pcvSolver.printVertices();
 
     return 0;
 }
