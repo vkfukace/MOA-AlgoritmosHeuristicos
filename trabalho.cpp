@@ -1,7 +1,9 @@
 #include <iostream>
 #include <string>
 #include <vector>
+#include <deque>
 #include <cmath>
+#include <limits>
 
 using namespace std;
 
@@ -20,7 +22,7 @@ public:
 };
 
 // Separa a string em uma lista de tokens
-// Tokens são separados por um espaço na string original
+// Tokens são trechos da string original separados por um espaço
 vector<string> tokenizar(string str)
 {
     vector<string> listaTokens;
@@ -41,7 +43,6 @@ vector<string> tokenizar(string str)
         {
             token = token + str[i];
         }
-        // cout << token << " : " << i << "\n";
     }
     if (!token.empty())
     {
@@ -60,24 +61,35 @@ int extrairNumVertices(string stringNumVertices)
     return stoi(stringNumVertices);
 }
 
+// Remove e retorna o elemento de índice i da listaVertices em tempo constante.
+// Não preserva a ordem original dos elementos
+void remover(int i, deque<int> &listaVertices){
+    int ultimoIdx = listaVertices.size() - 1;
+    int aux = listaVertices[i];
+    listaVertices[i] = listaVertices[ultimoIdx];
+    listaVertices[ultimoIdx] = aux;
+    listaVertices.pop_back();
+}
+
 class PCVSolver
 {
-public:
+private:
     vector<Vertice> vertices;
     int numVertices;
     vector<int> caminho;
+    float resultado;
 
+public:
     // Inicializa a classe com a lista e a quantidade de vértices
     PCVSolver(vector<Vertice> listaVertices, int n) {
         vertices = listaVertices;
         numVertices = n;
-        caminho.resize(numVertices);
     }
 
     // Retorna a distância entre os vértices v1 e v2.
-    float distancia(int v1, int v2){
-        int deltaX = vertices[v2].x - vertices[v1].x;
-        int deltaY = vertices[v2].y - vertices[v1].y;
+    float distancia(int idxV1, int idxV2){
+        int deltaX = vertices[idxV2].x - vertices[idxV1].x;
+        int deltaY = vertices[idxV2].y - vertices[idxV1].y;
 
         return sqrt((deltaX * deltaX) + (deltaY * deltaY));
     }
@@ -89,12 +101,47 @@ public:
             cout << j << " => x: " << vertices[j].x << " y: " << vertices[j].y << "\n";
         }
     }
+
+    float TSPGuloso(){
+        resultado = 0;
+        deque<int> idxVerticesDisponiveis;
+        for(int i = 1; i <= numVertices; i++){
+            idxVerticesDisponiveis.push_back(i);
+        }
+
+        // Solução inicia com o vértice 1
+        int idxVerticeAtual = 1;
+        remover(idxVerticeAtual - 1, idxVerticesDisponiveis);
+        while(idxVerticesDisponiveis.size() > 0)
+        {
+            caminho.push_back(idxVerticeAtual);
+            // menor caminho inicialmente possui o maior valor de float possível
+            float valorMenorCaminho = std::numeric_limits<float>::max();
+            int idxMenorCaminho, idxRemover;
+            float distanciaCalc;
+            for(int j = 0; j < idxVerticesDisponiveis.size(); j++){
+                distanciaCalc = distancia(idxVerticeAtual, idxVerticesDisponiveis.at(j));
+                if(distanciaCalc < valorMenorCaminho){
+                    valorMenorCaminho = distanciaCalc;
+                    idxMenorCaminho = idxVerticesDisponiveis.at(j);
+                    idxRemover = j;
+                }
+            }
+            resultado += valorMenorCaminho;
+            idxVerticeAtual = idxMenorCaminho;
+            remover(idxRemover, idxVerticesDisponiveis);
+        }
+        caminho.push_back(idxVerticeAtual);
+        resultado += distancia(idxVerticeAtual, caminho[0]);
+
+        return resultado;
+    }
 };
 
 // Inicializa a lista de vértices utilizando linhas de entrada
 // da linha de comando.
 // Assume que a entrada está formatada de acordo com os exemplos.
-void inicializar(vector<Vertice> &listaVertices, int &numVertices)
+void inicializar(vector<Vertice> &listaVertices, int &tamanhoLista)
 {
     string linhaEntrada;
     vector<string> listaTokens;
@@ -104,9 +151,9 @@ void inicializar(vector<Vertice> &listaVertices, int &numVertices)
     getline(cin, linhaEntrada); // COMMENT
 
     getline(cin, linhaEntrada); // DIMENSION
-    numVertices = extrairNumVertices(linhaEntrada);
-    cout << "\n############ " << numVertices << " ############\n";
-    listaVertices.resize(numVertices + 1);
+    tamanhoLista = extrairNumVertices(linhaEntrada);
+    cout << "\n############ " << tamanhoLista << " ############\n";
+    listaVertices.resize(tamanhoLista + 1);
     cout << "\n############ " << listaVertices.size() << " ############\n";
 
     getline(cin, linhaEntrada); // EDGE_WEIGHT_TYPE
@@ -127,11 +174,13 @@ void inicializar(vector<Vertice> &listaVertices, int &numVertices)
 int main()
 {
     vector<Vertice> listaVertices;
-    int numVertices;
-    inicializar(listaVertices, numVertices);
-    PCVSolver pcvSolver(listaVertices, numVertices);
-
+    int tamanhoLista;
+    inicializar(listaVertices, tamanhoLista);
+    PCVSolver pcvSolver(listaVertices, tamanhoLista);
+    
     pcvSolver.printVertices();
+    float resultado = pcvSolver.TSPGuloso();
+    cout << "\n############ " << resultado << " ############\n";
 
     return 0;
 }
