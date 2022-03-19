@@ -26,7 +26,6 @@ public:
 vector<string> tokenizar(string str)
 {
     vector<string> listaTokens;
-
     int i;
     string token = "";
     for (i = 0; i < str.length(); i++)
@@ -102,23 +101,26 @@ public:
         }
     }
 
-    float TSPGuloso(){
+    // Aplica o algoritmo do vizinho mais próximo para o PCV.
+    // Inicia a execução no vértice dado por verticeInicial.
+    float vizinhoMaisProximo(int verticeInicial){
         resultado = 0;
         deque<int> idxVerticesDisponiveis;
         for(int i = 1; i <= numVertices; i++){
             idxVerticesDisponiveis.push_back(i);
         }
 
-        // Solução inicia com o vértice 1
-        int idxVerticeAtual = 1;
+        int idxVerticeAtual = verticeInicial;
         remover(idxVerticeAtual - 1, idxVerticesDisponiveis);
         while(idxVerticesDisponiveis.size() > 0)
         {
             caminho.push_back(idxVerticeAtual);
-            // menor caminho inicialmente possui o maior valor de float possível
+            // valorMenorCaminho inicialmente possui o maior valor de float possível
             float valorMenorCaminho = std::numeric_limits<float>::max();
             int idxMenorCaminho, idxRemover;
             float distanciaCalc;
+
+            // Passa por todos os vértices disponíveis e seleciona o mais próximo do verticeAtual
             for(int j = 0; j < idxVerticesDisponiveis.size(); j++){
                 distanciaCalc = distancia(idxVerticeAtual, idxVerticesDisponiveis.at(j));
                 if(distanciaCalc < valorMenorCaminho){
@@ -128,6 +130,9 @@ public:
                 }
             }
             resultado += valorMenorCaminho;
+            // cout << "# resultado:" << resultado << " # valor:" << valorMenorCaminho << " # idx1:" << idxVerticeAtual << " # idx2:" << idxMenorCaminho << "\n";
+            // cout << "# vertices sobrando:" << idxVerticesDisponiveis.size() << "\n\n";
+            
             idxVerticeAtual = idxMenorCaminho;
             remover(idxRemover, idxVerticesDisponiveis);
         }
@@ -176,11 +181,11 @@ int main()
     vector<Vertice> listaVertices;
     int tamanhoLista;
     inicializar(listaVertices, tamanhoLista);
+    cout << "\n############ inicio ############\n";
     PCVSolver pcvSolver(listaVertices, tamanhoLista);
     
-    pcvSolver.printVertices();
-    float resultado = pcvSolver.TSPGuloso();
-    cout << "\n############ " << resultado << " ############\n";
+    float resultado = pcvSolver.vizinhoMaisProximo(1);
+    cout << "\n# resultado:" << resultado << "\n";
 
     return 0;
 }
