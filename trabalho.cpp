@@ -5,6 +5,8 @@
 #include <cmath>
 #include <limits>
 
+#define INF_POS std::numeric_limits<float>::max();
+
 using namespace std;
 
 class Vertice
@@ -60,9 +62,10 @@ int extrairNumVertices(string stringNumVertices)
     return stoi(stringNumVertices);
 }
 
-// Remove e retorna o elemento de índice i da listaVertices em tempo constante.
+// Remove o elemento de índice i da listaVertices em tempo constante.
 // Não preserva a ordem original dos elementos
-void remover(int i, deque<int> &listaVertices){
+void remover(int i, deque<int> &listaVertices)
+{
     int ultimoIdx = listaVertices.size() - 1;
     int aux = listaVertices[i];
     listaVertices[i] = listaVertices[ultimoIdx];
@@ -80,21 +83,37 @@ private:
 
 public:
     // Inicializa a classe com a lista e a quantidade de vértices
-    PCVSolver(vector<Vertice> listaVertices, int n) {
+    PCVSolver(vector<Vertice> listaVertices, int n)
+    {
         vertices = listaVertices;
         numVertices = n;
     }
 
     // Retorna a distância entre os vértices v1 e v2.
-    float distancia(int idxV1, int idxV2){
+    float distancia(int idxV1, int idxV2)
+    {
         int deltaX = vertices[idxV2].x - vertices[idxV1].x;
         int deltaY = vertices[idxV2].y - vertices[idxV1].y;
 
         return sqrt((deltaX * deltaX) + (deltaY * deltaY));
     }
 
+    // Retorna a distância percorrida pelo caminho inteiro.
+    float distanciaCaminho(vector<int> caminho)
+    {
+        int i;
+        float distanciaTotal = 0;
+        for (i = 0; i < caminho.size() - 1; i++)
+        {
+            distanciaTotal += distancia(caminho[i], caminho[i + 1]);
+        }
+        distanciaTotal += distancia(caminho[i], caminho[0]);
+        return distanciaTotal;
+    }
+
     // Imprime as coordenadas de todos os vértices na tela
-    void printVertices(){
+    void printVertices()
+    {
         for (int j = 1; j < numVertices + 1; j++)
         {
             cout << j << " => x: " << vertices[j].x << " y: " << vertices[j].y << "\n";
@@ -103,27 +122,32 @@ public:
 
     // Aplica o algoritmo do vizinho mais próximo para o PCV.
     // Inicia a execução no vértice dado por verticeInicial.
-    float vizinhoMaisProximo(int verticeInicial){
+    float solveVizinhoMaisProximo(int verticeInicial)
+    {
         resultado = 0;
+        // Inicializa a lista de vértices disponíveis
         deque<int> idxVerticesDisponiveis;
-        for(int i = 1; i <= numVertices; i++){
+        for (int i = 1; i <= numVertices; i++)
+        {
             idxVerticesDisponiveis.push_back(i);
         }
 
         int idxVerticeAtual = verticeInicial;
         remover(idxVerticeAtual - 1, idxVerticesDisponiveis);
-        while(idxVerticesDisponiveis.size() > 0)
+        while (idxVerticesDisponiveis.size() > 0)
         {
             caminho.push_back(idxVerticeAtual);
             // valorMenorCaminho inicialmente possui o maior valor de float possível
-            float valorMenorCaminho = std::numeric_limits<float>::max();
+            float valorMenorCaminho = INF_POS;
             int idxMenorCaminho, idxRemover;
             float distanciaCalc;
 
             // Passa por todos os vértices disponíveis e seleciona o mais próximo do verticeAtual
-            for(int j = 0; j < idxVerticesDisponiveis.size(); j++){
+            for (int j = 0; j < idxVerticesDisponiveis.size(); j++)
+            {
                 distanciaCalc = distancia(idxVerticeAtual, idxVerticesDisponiveis.at(j));
-                if(distanciaCalc < valorMenorCaminho){
+                if (distanciaCalc < valorMenorCaminho)
+                {
                     valorMenorCaminho = distanciaCalc;
                     idxMenorCaminho = idxVerticesDisponiveis.at(j);
                     idxRemover = j;
@@ -132,7 +156,7 @@ public:
             resultado += valorMenorCaminho;
             // cout << "# resultado:" << resultado << " # valor:" << valorMenorCaminho << " # idx1:" << idxVerticeAtual << " # idx2:" << idxMenorCaminho << "\n";
             // cout << "# vertices sobrando:" << idxVerticesDisponiveis.size() << "\n\n";
-            
+
             idxVerticeAtual = idxMenorCaminho;
             remover(idxRemover, idxVerticesDisponiveis);
         }
@@ -140,6 +164,12 @@ public:
         resultado += distancia(idxVerticeAtual, caminho[0]);
 
         return resultado;
+    }
+
+    // Aplica o algoritmo 2-opt para o PCV.
+    float solve2Opt(int verticeInicial)
+    {
+        // https://www.technical-recipes.com/2012/applying-c-implementations-of-2-opt-to-travelling-salesman-problems/
     }
 };
 
@@ -183,8 +213,8 @@ int main()
     inicializar(listaVertices, tamanhoLista);
     cout << "\n############ inicio ############\n";
     PCVSolver pcvSolver(listaVertices, tamanhoLista);
-    
-    float resultado = pcvSolver.vizinhoMaisProximo(1);
+
+    float resultado = pcvSolver.solveVizinhoMaisProximo(1);
     cout << "\n# resultado:" << resultado << "\n";
 
     return 0;
