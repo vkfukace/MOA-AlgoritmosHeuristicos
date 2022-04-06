@@ -139,23 +139,11 @@ public:
             melhorCaminho.push_back(idxVerticeAtual);
             // Seleciona o vizinho mais próximo
             idxMaisProximo = vizinhoMaisProximo(idxVerticeAtual, idxVerticesDisponiveis, idxRemover);
-            
-            // melhorDistancia += tamanhoMenorAresta;
-            
-            // cout << "# melhorDistancia:" << melhorDistancia << " # valor:" << tamanhoMenorAresta << " # idx1:" << idxVerticeAtual << " # idx2:" << idxMaisProximo << "\n";
-            // cout << "# vertices sobrando:" << idxVerticesDisponiveis.size() << "\n\n";
-
             idxVerticeAtual = idxMaisProximo;
             remover(idxRemover, idxVerticesDisponiveis);
         }
         melhorCaminho.push_back(idxVerticeAtual);
-        // cout << "final x1:" << vertices[idxVerticeAtual].x << " y1:" << vertices[idxVerticeAtual].y << endl;
-        // cout << "final x2:" << vertices[melhorCaminho[0]].x << " y2:" << vertices[melhorCaminho[0]].y << endl;
-        
-        // melhorDistancia += distancia(vertices[idxVerticeAtual], vertices[melhorCaminho[0]]);
         melhorDistancia = distanciaCaminho(melhorCaminho);
-        
-        // cout << "# melhorDistancia:" << melhorDistancia << " # valor:" << tamanhoMenorAresta << " # idx1:" << idxVerticeAtual << " # idx2:" << melhorCaminho[0] << "\n";
 
         return melhorDistancia;
     }
@@ -185,192 +173,65 @@ public:
     {
         while (i < j)
         {
-            int aux = caminho[i];
-            caminho[i] = caminho[j];
-            caminho[j] = aux;
+            swap(caminho[i], caminho[j]);
             i++;
             j--;
         }
     }
 
     // Aplica o algoritmo 2-opt para o PCV.
-    float solve2Opt()
+    // A cada iteração, realiza as trocas que mais diminuem a distância do caminho
+    float solve2OptBestImprovement()
     {
+        clock_t tempoInicial = clock();
         // melhorCaminho = gerarCaminhoInicialSequencial();
         // melhorDistancia = distanciaCaminho(melhorCaminho);
         solveVizinhoMaisProximo(1);
-        float diferencaDistancia;
-        int contadorSemMelhora = 0, maximoSemMelhora = 3;
+        float diferencaDistancia, melhorDiferencaDistancia;
+        int contadorSemMelhora = 0, maximoSemMelhora = 1;
+        int iter = 0, maxIteracoes = 1000;
+        int i, j, melhor_i, melhor_j;
 
         // Cada vez que o 2-opt for executado sem melhorar a distância do caminho,
         // contadorSemMelhora é incrementado.
         // maximoSemMelhora indica o número máximo de vezes seguidas que o 2-opt
         // pode ser executado sem melhorar o resultado.
-        while (contadorSemMelhora < maximoSemMelhora)
+        while (contadorSemMelhora < maximoSemMelhora && iter < maxIteracoes)
         {
             contadorSemMelhora++;
+
+            float tempoAtual = (clock() - tempoInicial) / (float)CLOCKS_PER_SEC;
+            cout << "#########" << endl;
             // cout << contadorSemMelhora << endl;
-            for (int i = 1; i < numVertices; i++)
+            cout << "best improvement dist: " << melhorDistancia << endl;
+            cout << "iter: " << iter << endl;
+            cout << "t: " << tempoAtual << "s" << endl;
+
+            // Seleciona a melhor entre todas as soluções vizinhas.
+            for (i = 1; i < numVertices; i++)
             {
+                melhorDiferencaDistancia = 0;
                 // cout << i << endl;
-                for (int j = i + 1; j < numVertices; j++)
+                for (j = i + 1; j < numVertices; j++)
                 {
                     diferencaDistancia = diferencaTroca2Opt(melhorCaminho, i, j);
                     // Se a troca resulta em uma redução da distância
-                    if (diferencaDistancia < 0)
+                    if (diferencaDistancia < melhorDiferencaDistancia)
                     {
-                        trocar2Opt(melhorCaminho, i, j);
-                        contadorSemMelhora = 0;
-                        melhorDistancia += diferencaDistancia;
+                        melhor_i = i;
+                        melhor_j = j;
+                        melhorDiferencaDistancia = diferencaDistancia;
                     }
                 }
-            }
-        }
-        return melhorDistancia;
-    }
-
-    float calculoCustoInsercao(vector<int> ciclo, int i, int j, int k)
-    {
-        float d_ik = distancia(vertices[i], vertices[k]);
-        float d_kj = distancia(vertices[k], vertices[j]);
-        float d_ij = distancia(vertices[i], vertices[j]);
-        return d_ik + d_kj - d_ij;
-    }
-
-    // Aplica o algoritmo random insertion para o PCV.
-    float solveRandomInsertion()
-    {
-        // Inicializa a lista de vértices disponíveis.
-        deque<int> idxVerticesDisponiveis;
-        for (int i = 1; i <= numVertices; i++)
-            idxVerticesDisponiveis.push_back(i);
-        int numVerticesDisponiveis = (int)idxVerticesDisponiveis.size();
-
-        // Inicializa o ciclo vazio.
-        vector<int> proxCiclo(numVertices + 1, -1);
-
-        // Escolhe vértice inicial aleatório.
-        srand(time(NULL));
-        int idxRandom = rand() % numVerticesDisponiveis;
-        int verticeInicial = idxVerticesDisponiveis[idxRandom];
-        remover(idxRandom, idxVerticesDisponiveis);
-        numVerticesDisponiveis--;
-
-        // Define um ciclo inicial com um único vértice.
-        proxCiclo[verticeInicial] = verticeInicial;
-        int tamanhoCiclo = 1;
-
-        while (numVerticesDisponiveis > 0)
-        {
-            // Escolhe outro vértice aleatório, chamado k.
-            idxRandom = rand() % numVerticesDisponiveis;
-            int k = idxVerticesDisponiveis[idxRandom];
-            numVerticesDisponiveis--;
-            remover(idxRandom, idxVerticesDisponiveis);
-
-            int i = verticeInicial, j, iInsercao, jInsercao;
-            float melhorCustoInsercao = INF_POS;
-            // Busca todas as arestas (i, j) do ciclo, e escolhe aquela com o menor custo de inserção de k.
-            for (int cont = 0; cont < tamanhoCiclo; cont++)
-            {
-                j = proxCiclo[i];
-                float custoInsercao = calculoCustoInsercao(proxCiclo, i, j, k);
-                if (custoInsercao < melhorCustoInsercao)
-                {
-                    iInsercao = i;
-                    jInsercao = j;
-                    melhorCustoInsercao = custoInsercao;
+                // Se existe uma solução vizinha que resulta em redução da distância
+                if(melhorDiferencaDistancia < 0){
+                    trocar2Opt(melhorCaminho, melhor_i, melhor_j);
+                    melhorDistancia += melhorDiferencaDistancia;
+                    contadorSemMelhora = 0;
                 }
-                i = j;
             }
-            proxCiclo[k] = jInsercao;
-            proxCiclo[iInsercao] = k;
-            tamanhoCiclo++;
-            // cout << tamanhoCiclo << endl;
+            iter++;
         }
-
-        // Transfere o ciclo para o melhorCaminho, e calcula a distância
-        int i = verticeInicial;
-        for (int cont = 0; cont < tamanhoCiclo; cont++)
-        {
-            melhorCaminho.push_back(i);
-            i = proxCiclo[i];
-        }
-        melhorDistancia = distanciaCaminho(melhorCaminho);
-        return melhorDistancia;
-    }
-
-    // Calcula a diferença entre as distâncias do caminho antes
-    // e depois da operação de troca entre os vértices caminho[i] e caminho[j].
-    // Caso a diferença seja negativa, o caminho em que a troca foi
-    // realizada possui distância menor.
-    float calculoCustoTroca(vector<int> caminho, int i, int j){
-        int iMenos1 = (numVertices + ((i - 1) % numVertices)) % numVertices;
-        int iMais1 = (i + 1) % numVertices;
-        int jMenos1 = (numVertices + ((j - 1) % numVertices)) % numVertices;
-        int jMais1 = (j + 1) % numVertices;
-
-        int v_i = caminho[i], v_iMenos1 = caminho[iMenos1], v_iMais1 = caminho[iMais1];
-        int v_j = caminho[j], v_jMenos1 = caminho[jMenos1], v_jMais1 = caminho[jMais1];
-
-        if(iMais1 == j){
-            // Distâncias antes da troca
-            float dAntesI = distancia(vertices[v_iMenos1], vertices[v_i]);
-            float dAntesJ = distancia(vertices[v_j], vertices[v_jMais1]);
-            // Distâncias depois da troca
-            float dDepoisI = distancia(vertices[v_iMenos1], vertices[v_j]);
-            float dDepoisJ = distancia(vertices[v_i], vertices[v_jMais1]);
-            return (dDepoisI  + dDepoisJ) - (dAntesI  + dAntesJ);
-        } else if (jMais1 == i){
-            // Distâncias antes da troca
-            float dAntesI = distancia(vertices[v_i], vertices[v_iMais1]);
-            float dAntesJ = distancia(vertices[v_jMenos1], vertices[v_j]);
-            // Distâncias depois da troca
-            float dDepoisI = distancia(vertices[v_j], vertices[v_iMais1]);
-            float dDepoisJ = distancia(vertices[v_jMenos1], vertices[v_i]); 
-            return (dDepoisI + dDepoisJ) - (dAntesI + dAntesJ);
-        } else {
-            // Distâncias antes da troca
-            float dAntesI = distancia(vertices[v_iMenos1], vertices[v_i]) + distancia(vertices[v_i], vertices[v_iMais1]);
-            float dAntesJ = distancia(vertices[v_jMenos1], vertices[v_j]) + distancia(vertices[v_j], vertices[v_jMais1]);
-            // Distâncias depois da troca
-            float dDepoisI = distancia(vertices[v_iMenos1], vertices[v_j]) + distancia(vertices[v_j], vertices[v_iMais1]);
-            float dDepoisJ = distancia(vertices[v_jMenos1], vertices[v_i]) + distancia(vertices[v_i], vertices[v_jMais1]);
-            return (dDepoisI + dDepoisJ) - (dAntesI + dAntesJ);
-        }
-
-    }
-
-    // Troca os vértices em caminho[i] e caminho[j]
-    void trocarVertices(vector<int> &caminho, int i, int j)
-    {
-        int aux = caminho[i];
-        caminho[i] = caminho[j];
-        caminho[j] = aux;
-    }
-
-    // Aplica o algoritmo simulated annealing para o PCV.
-    float solveSimulatedAnnealing(){
-        melhorCaminho = gerarCaminhoInicialSequencial();
-        melhorDistancia = distanciaCaminho(melhorCaminho);
-        int maxIteracoes = ((numVertices/2) * pow(numVertices, 2)) , i, j;
-        float tInicial = 500.0, tFinal = 0.01, taxaEsfriamento = 0.999;
-        float t = tInicial, custoTroca, randFloat;
-        srand(time(NULL));
-
-        for (int iter = 0; iter < maxIteracoes && t > tFinal; iter++) {
-            i = rand() % numVertices;
-            j = rand() % numVertices;
-            custoTroca = calculoCustoTroca(melhorCaminho, i, j);
-            // Float aleatório entre 0 e 1
-            randFloat = ((float) rand() / (RAND_MAX));
-            if ((custoTroca < 0) || (exp(-custoTroca/t) > randFloat)){
-                melhorDistancia += custoTroca;
-                trocarVertices(melhorCaminho, i, j);
-            } 
-            t *= taxaEsfriamento;
-        }
-        cout << t << endl;
         return melhorDistancia;
     }
 };
@@ -414,7 +275,8 @@ void inicializar(vector<Vertice> &listaVertices, int &tamanhoLista)
     string linhaEntrada;
     vector<string> listaTokens;
 
-    for(int i = 0; i < 6; i++){
+    for (int i = 0; i < 6; i++)
+    {
         getline(cin, linhaEntrada);
     }
 
@@ -443,16 +305,13 @@ int main()
     float resultado;
     clock_t tempoInicial = clock();
 
-    // resultado = pcvSolver.solveVizinhoMaisProximo(1);
-    // resultado = pcvSolver.solve2Opt();
-    resultado = pcvSolver.solveRandomInsertion();
-    // resultado = pcvSolver.solveSimulatedAnnealing();
-    
-    clock_t tempoFinal = clock();
-    float tempoTotal = (tempoFinal-tempoInicial)/(float)CLOCKS_PER_SEC;
+    resultado = pcvSolver.solve2OptBestImprovement();
 
-    cout << tempoTotal << "s" << endl;
-    cout << resultado << "\n";
+    clock_t tempoFinal = clock();
+    float tempoTotal = (tempoFinal - tempoInicial) / (float)CLOCKS_PER_SEC;
+
+    cout << "Tempo: " << tempoTotal << "s" << endl;
+    cout << "Resultado: " << resultado << "\n";
 
     return 0;
 }

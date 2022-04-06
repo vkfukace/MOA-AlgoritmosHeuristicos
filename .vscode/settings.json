@@ -4,6 +4,7 @@
     "limits": "cpp",
     "ostream": "cpp",
     "vector": "cpp",
-    "deque": "cpp"
+    "deque": "cpp",
+    "cmath": "cpp"
   }
 }
