@@ -73,6 +73,16 @@ public:
         return distanciaTotal;
     }
 
+    // Imprime todos os vértices do melhorCaminho
+    void printCaminho()
+    {
+        for (int j = 0; j < melhorCaminho.size(); j++)
+        {
+            cout << melhorCaminho[j] << " => ";
+        }
+            cout << melhorCaminho[0] << endl;
+    }
+
     // Imprime as coordenadas de todos os vértices na tela
     void printVertices()
     {
@@ -196,19 +206,21 @@ void inicializar(vector<Vertice> &listaVertices, int &tamanhoLista)
 
 int main()
 {
-    vector<Vertice> listaVertices;
+        vector<Vertice> listaVertices;
     int tamanhoLista;
+    cout << "Insira o caso de teste" << endl;
     inicializar(listaVertices, tamanhoLista);
     PCVSolver pcvSolver(listaVertices, tamanhoLista);
 
     float resultado;
     clock_t tempoInicial = clock();
+    cout << "Executando..." << endl;
 
     resultado = pcvSolver.solveVizinhoMaisProximo(1);
-    
-    clock_t tempoFinal = clock();
-    float tempoTotal = (tempoFinal-tempoInicial)/(float)CLOCKS_PER_SEC;
 
+    clock_t tempoFinal = clock();
+    float tempoTotal = (tempoFinal - tempoInicial) / (float)CLOCKS_PER_SEC;
+    cout << "Execução finalizada" << endl;
     cout << "Tempo: " << tempoTotal << "s" << endl;
     cout << "Resultado: " << resultado << "\n";
 

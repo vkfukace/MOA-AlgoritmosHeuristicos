@@ -87,6 +87,16 @@ public:
         return caminho;
     }
 
+    // Imprime todos os vértices do melhorCaminho
+    void printCaminho()
+    {
+        for (int j = 0; j < melhorCaminho.size(); j++)
+        {
+            cout << melhorCaminho[j] << " => ";
+        }
+            cout << melhorCaminho[0] << endl;
+    }
+
     // Imprime as coordenadas de todos os vértices na tela
     void printVertices()
     {
@@ -202,16 +212,19 @@ public:
 
             float tempoAtual = (clock() - tempoInicial) / (float)CLOCKS_PER_SEC;
             cout << "#########" << endl;
+            cout << "iter: " << iter << endl;
             // cout << contadorSemMelhora << endl;
             cout << "best improvement dist: " << melhorDistancia << endl;
-            cout << "iter: " << iter << endl;
             cout << "t: " << tempoAtual << "s" << endl;
 
             // Seleciona a melhor entre todas as soluções vizinhas.
             for (i = 1; i < numVertices; i++)
             {
                 melhorDiferencaDistancia = 0;
-                // cout << i << endl;
+                if(i%5000 == 0){
+                    tempoAtual = (clock() - tempoInicial) / (float)CLOCKS_PER_SEC;
+                    cout << "i: " << i << " t: " << tempoAtual << endl;
+                }
                 for (j = i + 1; j < numVertices; j++)
                 {
                     diferencaDistancia = diferencaTroca2Opt(melhorCaminho, i, j);
@@ -299,17 +312,19 @@ int main()
 {
     vector<Vertice> listaVertices;
     int tamanhoLista;
+    cout << "Insira o caso de teste" << endl;
     inicializar(listaVertices, tamanhoLista);
     PCVSolver pcvSolver(listaVertices, tamanhoLista);
 
     float resultado;
     clock_t tempoInicial = clock();
+    cout << "Executando..." << endl;
 
     resultado = pcvSolver.solve2OptBestImprovement();
 
     clock_t tempoFinal = clock();
     float tempoTotal = (tempoFinal - tempoInicial) / (float)CLOCKS_PER_SEC;
-
+    cout << "Execução finalizada" << endl;
     cout << "Tempo: " << tempoTotal << "s" << endl;
     cout << "Resultado: " << resultado << "\n";
 
