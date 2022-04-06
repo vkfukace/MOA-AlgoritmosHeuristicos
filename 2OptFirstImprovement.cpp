@@ -194,7 +194,7 @@ public:
     // A cada iteração, busca a primeira troca que diminui a distância da solução.
     float solve2OptFirstImprovement()
     {
-        fstream arq;
+        ofstream arq;
         arq.open("bestImprovement.txt", ios::out);
         
         clock_t tempoInicial = clock();
@@ -285,7 +285,7 @@ vector<string> tokenizar(string str)
 // da linha de comando.
 // Assume que a entrada está formatada de acordo com os exemplos.
 // Inicializa a posição 0 da linha de vértices com um vértice vazio.
-void inicializar(vector<Vertice> &listaVertices, int &tamanhoLista)
+void inicializarTerminal(vector<Vertice> &listaVertices, int &tamanhoLista)
 {
     string linhaEntrada;
     vector<string> listaTokens;
@@ -310,12 +310,58 @@ void inicializar(vector<Vertice> &listaVertices, int &tamanhoLista)
     }
 }
 
-int main()
+// Inicializa a lista de vértices utilizando um arquivo
+// Assume que a entrada está formatada de acordo com os exemplos.
+// Inicializa a posição 0 da linha de vértices com um vértice vazio.
+// Retorna true caso o arquivo exista, false caso contrário
+bool inicializarArquivo(string nomeArquivo, vector<Vertice> &listaVertices, int &tamanhoLista)
+{
+    ifstream arq(nomeArquivo);
+
+    if(!arq.good())
+        return false;
+
+    string linhaEntrada;
+    vector<string> listaTokens;
+
+    for (int i = 0; i < 6; i++)
+    {
+        getline(arq, linhaEntrada);
+    }
+
+    // Declaração dos vértices
+    // Primeiro vértice é vazio
+    listaVertices.push_back(Vertice());
+    tamanhoLista = 0;
+    // Enquanto não for o fim do arquivo e não achar um "EOF"
+    while (getline(arq, linhaEntrada) && linhaEntrada.find("EOF") == string::npos)
+    {
+        listaTokens = tokenizar(linhaEntrada);
+        listaVertices.push_back(Vertice(stof(listaTokens[1]), stof(listaTokens[2])));
+        tamanhoLista++;
+    }
+
+    return true;
+}
+
+int main(int argc, char** argv)
 {
     vector<Vertice> listaVertices;
     int tamanhoLista;
-    cout << "Insira o caso de teste" << endl;
-    inicializar(listaVertices, tamanhoLista);
+
+    if(argc > 1){
+        if(inicializarArquivo(argv[1], listaVertices, tamanhoLista)){
+            cout << "Inicialização completa" << endl;
+        } else {
+            cout << "Erro na leitura do arquivo" << endl;
+            return 0;
+        }
+    }
+    else{
+        cout << "Insira o caso de teste" << endl;
+        inicializarTerminal(listaVertices, tamanhoLista);
+    }
+
     PCVSolver pcvSolver(listaVertices, tamanhoLista);
 
     float resultado;

@@ -5,6 +5,7 @@
     "ostream": "cpp",
     "vector": "cpp",
     "deque": "cpp",
-    "cmath": "cpp"
+    "cmath": "cpp",
+    "fstream": "cpp"
   }
 }
