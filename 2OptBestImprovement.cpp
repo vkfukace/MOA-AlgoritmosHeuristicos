@@ -5,6 +5,7 @@
 #include <cmath>
 #include <ctime>
 #include <limits>
+#include <fstream>
 
 #define INF_POS std::numeric_limits<float>::max();
 
@@ -193,13 +194,16 @@ public:
     // A cada iteração, realiza as trocas que mais diminuem a distância do caminho
     float solve2OptBestImprovement()
     {
+        fstream arq;
+        arq.open("bestImprovement.txt", ios::out);
+
         clock_t tempoInicial = clock();
         // melhorCaminho = gerarCaminhoInicialSequencial();
         // melhorDistancia = distanciaCaminho(melhorCaminho);
         solveVizinhoMaisProximo(1);
         float diferencaDistancia, melhorDiferencaDistancia;
         int contadorSemMelhora = 0, maximoSemMelhora = 1;
-        int iter = 0, maxIteracoes = 1000;
+        int iter = 0, maxIteracoes = 10000;
         int i, j, melhor_i, melhor_j;
 
         // Cada vez que o 2-opt for executado sem melhorar a distância do caminho,
@@ -211,20 +215,20 @@ public:
             contadorSemMelhora++;
 
             float tempoAtual = (clock() - tempoInicial) / (float)CLOCKS_PER_SEC;
-            cout << "#########" << endl;
-            cout << "iter: " << iter << endl;
-            // cout << contadorSemMelhora << endl;
-            cout << "best improvement dist: " << melhorDistancia << endl;
-            cout << "t: " << tempoAtual << "s" << endl;
+            arq << "#########" << endl;
+            arq << "iter: " << iter << endl;
+            // arq << contadorSemMelhora << endl;
+            arq << "best improvement dist: " << melhorDistancia << endl;
+            arq << "t: " << tempoAtual << "s" << endl;
 
             // Seleciona a melhor entre todas as soluções vizinhas.
             for (i = 1; i < numVertices; i++)
             {
                 melhorDiferencaDistancia = 0;
-                if(i%5000 == 0){
-                    tempoAtual = (clock() - tempoInicial) / (float)CLOCKS_PER_SEC;
-                    cout << "i: " << i << " t: " << tempoAtual << endl;
-                }
+                // if(i%5000 == 0){
+                //     tempoAtual = (clock() - tempoInicial) / (float)CLOCKS_PER_SEC;
+                //     arq << "i: " << i << " t: " << tempoAtual << endl;
+                // }
                 for (j = i + 1; j < numVertices; j++)
                 {
                     diferencaDistancia = diferencaTroca2Opt(melhorCaminho, i, j);
@@ -245,6 +249,14 @@ public:
             }
             iter++;
         }
+
+        float tempoAtual = (clock() - tempoInicial) / (float)CLOCKS_PER_SEC;
+        arq << "#########" << endl;
+        arq << "iter final:  " << iter << endl;
+        arq << "distancia final: " << melhorDistancia << endl;
+        arq << "t final: " << tempoAtual << "s" << endl;
+        arq.close();
+
         return melhorDistancia;
     }
 };

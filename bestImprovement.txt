@@ -1,0 +1,24 @@
+#########
+iter: 0
+first improvement dist: 312506
+t: 0.071528s
+#########
+iter: 1
+first improvement dist: 290868
+t: 0.23984s
+#########
+iter: 2
+first improvement dist: 280128
+t: 0.408365s
+#########
+iter: 3
+first improvement dist: 279254
+t: 0.577107s
+#########
+iter: 4
+first improvement dist: 279136
+t: 0.762635s
+#########
+iter final:  5
+distancia final: 279136
+t final: 0.947483s
