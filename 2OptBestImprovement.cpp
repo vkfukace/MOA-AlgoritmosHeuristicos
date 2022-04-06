@@ -195,7 +195,7 @@ public:
     float solve2OptBestImprovement()
     {
         ofstream arq;
-        arq.open("bestImprovement.txt", ios::out);
+        arq.open("logBestImprovement.txt", ios::out);
 
         clock_t tempoInicial = clock();
         // melhorCaminho = gerarCaminhoInicialSequencial();
