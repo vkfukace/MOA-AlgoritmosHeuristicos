@@ -1,7 +1,6 @@
 #include <iostream>
 #include <string>
 #include <vector>
-#include <deque>
 #include <cmath>
 #include <ctime>
 #include <limits>
@@ -27,7 +26,7 @@ public:
 
 // Remove o elemento de índice i da listaVertices em tempo constante.
 // Não preserva a ordem original dos elementos
-void remover(int i, deque<int> &listaVertices)
+void remover(int i, vector<int> &listaVertices)
 {
     int ultimoIdx = listaVertices.size() - 1;
     int aux = listaVertices[i];
@@ -95,7 +94,7 @@ public:
 
     // Retorna o índice do vizinho mais próximo de verticeAtual
     // Retorna também o índice deste vizinho na lista de vértices disponíveis;
-    int vizinhoMaisProximo(int verticeAtual, deque<int> idxVerticesDisponiveis, int &idxListaDisponiveis)
+    int vizinhoMaisProximo(int verticeAtual, vector<int> &idxVerticesDisponiveis, int &idxListaDisponiveis)
     {
         float distanciaCalc, tamanhoMenorAresta;
         int idxMaisProximo;
@@ -104,11 +103,11 @@ public:
         tamanhoMenorAresta = INF_POS;
         for (int i = 0; i < (int)idxVerticesDisponiveis.size(); i++)
         {
-            distanciaCalc = distancia(vertices[verticeAtual], vertices[idxVerticesDisponiveis.at(i)]);
+            distanciaCalc = distancia(vertices[verticeAtual], vertices[idxVerticesDisponiveis[i]]);
             if (distanciaCalc < tamanhoMenorAresta)
             {
                 tamanhoMenorAresta = distanciaCalc;
-                idxMaisProximo = idxVerticesDisponiveis.at(i);
+                idxMaisProximo = idxVerticesDisponiveis[i];
                 idxListaDisponiveis = i;
             }
         }
@@ -119,7 +118,7 @@ public:
     float solveVizinhoMaisProximo(int verticeInicial)
     {
         // Inicializa a lista de vértices disponíveis
-        deque<int> idxVerticesDisponiveis;
+        vector<int> idxVerticesDisponiveis;
         for (int i = 1; i <= numVertices; i++)
         {
             idxVerticesDisponiveis.push_back(i);
@@ -372,7 +371,8 @@ int main(int argc, char **argv)
     float tempoTotal = (tempoFinal - tempoInicial) / (float)CLOCKS_PER_SEC;
     cout << "Execução finalizada" << endl;
     cout << "Tempo: " << tempoTotal << "s" << endl;
-    cout << "Resultado: " << resultado << "\n";
+    cout << "Resultado: ";
+    cout << resultado << "\n";
 
     return 0;
 }
