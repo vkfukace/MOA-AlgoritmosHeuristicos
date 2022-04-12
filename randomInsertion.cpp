@@ -81,9 +81,9 @@ public:
         {
             cout << melhorCaminho[j] << " => ";
         }
-            cout << melhorCaminho[0] << endl;
+        cout << melhorCaminho[0] << endl;
     }
-    
+
     // Imprime as coordenadas de todos os vértices na tela
     void printVertices()
     {
@@ -93,7 +93,7 @@ public:
         }
     }
 
-    float calculoCustoInsercao(vector<int> ciclo, int i, int j, int k)
+    float calculoCustoInsercao(vector<int> &ciclo, int i, int j, int k)
     {
         float d_ik = distancia(vertices[i], vertices[k]);
         float d_kj = distancia(vertices[k], vertices[j]);
@@ -111,6 +111,9 @@ public:
         int numVerticesDisponiveis = (int)idxVerticesDisponiveis.size();
 
         // Inicializa o ciclo vazio.
+        // proxCiclo funciona de forma diferente de melhorCaminho.
+        // No melhorCaminho, o elemento após melhorCaminho[i] é melhorCaminho[i+1],
+        // no proxCiclo, o elemento após proxCiclo[i] é proxCiclo[proxCiclo[i]].
         vector<int> proxCiclo(numVertices + 1, -1);
 
         // Escolhe vértice inicial aleatório.
@@ -150,7 +153,6 @@ public:
             proxCiclo[k] = jInsercao;
             proxCiclo[iInsercao] = k;
             tamanhoCiclo++;
-            // cout << tamanhoCiclo << endl;
         }
 
         // Transfere o ciclo para o melhorCaminho, e calcula a distância
@@ -199,7 +201,7 @@ vector<string> tokenizar(string str)
 // da linha de comando.
 // Assume que a entrada está formatada de acordo com os exemplos.
 // Inicializa a posição 0 da linha de vértices com um vértice vazio.
-void inicializarTerminal(vector<Vertice> &listaVertices, int &tamanhoLista)
+void inicializarPorTerminal(vector<Vertice> &listaVertices, int &tamanhoLista)
 {
     string linhaEntrada;
     vector<string> listaTokens;
@@ -228,11 +230,11 @@ void inicializarTerminal(vector<Vertice> &listaVertices, int &tamanhoLista)
 // Assume que a entrada está formatada de acordo com os exemplos.
 // Inicializa a posição 0 da linha de vértices com um vértice vazio.
 // Retorna true caso o arquivo exista, false caso contrário
-bool inicializarArquivo(string nomeArquivo, vector<Vertice> &listaVertices, int &tamanhoLista)
+bool inicializarPorArquivo(string nomeArquivo, vector<Vertice> &listaVertices, int &tamanhoLista)
 {
     ifstream arq(nomeArquivo);
 
-    if(!arq.good())
+    if (!arq.good())
         return false;
 
     string linhaEntrada;
@@ -258,22 +260,27 @@ bool inicializarArquivo(string nomeArquivo, vector<Vertice> &listaVertices, int 
     return true;
 }
 
-int main(int argc, char** argv)
+int main(int argc, char **argv)
 {
     vector<Vertice> listaVertices;
     int tamanhoLista;
 
-    if(argc > 1){
-        if(inicializarArquivo(argv[1], listaVertices, tamanhoLista)){
+    if (argc > 1)
+    {
+        if (inicializarPorArquivo(argv[1], listaVertices, tamanhoLista))
+        {
             cout << "Inicialização completa" << endl;
-        } else {
+        }
+        else
+        {
             cout << "Erro na leitura do arquivo" << endl;
             return 0;
         }
     }
-    else{
+    else
+    {
         cout << "Insira o caso de teste" << endl;
-        inicializarTerminal(listaVertices, tamanhoLista);
+        inicializarPorTerminal(listaVertices, tamanhoLista);
     }
 
     PCVSolver pcvSolver(listaVertices, tamanhoLista);

@@ -74,20 +74,6 @@ public:
         return distanciaTotal;
     }
 
-    // Gera um caminho inicial, começando no vértice 1 e passando sequencialmente
-    // pelos vértices 2, 3, 4, ..., até o último.
-    // Retorna a distância total do caminho.
-    vector<int> gerarCaminhoInicialSequencial()
-    {
-        vector<int> caminho;
-        int i;
-        for (i = 1; i <= numVertices; i++)
-        {
-            caminho.push_back(i);
-        }
-        return caminho;
-    }
-
     // Imprime todos os vértices do melhorCaminho
     void printCaminho()
     {
@@ -95,7 +81,7 @@ public:
         {
             cout << melhorCaminho[j] << " => ";
         }
-            cout << melhorCaminho[0] << endl;
+        cout << melhorCaminho[0] << endl;
     }
 
     // Imprime as coordenadas de todos os vértices na tela
@@ -108,7 +94,7 @@ public:
     }
 
     // Retorna o índice do vizinho mais próximo de verticeAtual
-    // Retorna também o índice deste vizinho na lista de vértices disponíveis e o tamanho da aresta formada;
+    // Retorna também o índice deste vizinho na lista de vértices disponíveis;
     int vizinhoMaisProximo(int verticeAtual, deque<int> idxVerticesDisponiveis, int &idxListaDisponiveis)
     {
         float distanciaCalc, tamanhoMenorAresta;
@@ -164,7 +150,8 @@ public:
     // (caminho[i-1], caminho[i]) e (caminho[j], caminho[j+1]).
     // Caso a diferença seja negativa, o caminho em que a troca foi
     // realizada possui distância menor.
-    float diferencaTroca2Opt(vector<int> caminho, int i, int j)
+    // Assume que i < j.
+    float diferencaTroca2Opt(vector<int> &caminho, int i, int j)
     {
         int iMenos = (numVertices + ((i - 1) % numVertices)) % numVertices;
         int jMais = (j + 1) % numVertices;
@@ -190,21 +177,30 @@ public:
         }
     }
 
+    // Registra dados da iteração no arquivo arq
+    void registraIteracao(ofstream &arq, clock_t tempoInicial, int iter, float distancia)
+    {
+        float tempoAtual = (clock() - tempoInicial) / (float)CLOCKS_PER_SEC;
+        arq << "#" << endl;
+        arq << "Iteracao: " << iter << endl;
+        arq << "Distancia: " << distancia << endl;
+        arq << "Tempo: " << tempoAtual << "s" << endl;
+    }
+
     // Aplica o algoritmo 2-opt para o PCV.
     // A cada iteração, realiza as trocas que mais diminuem a distância do caminho
     float solve2OptBestImprovement()
     {
-        ofstream arq;
-        arq.open("logBestImprovement.txt", ios::out);
-
         clock_t tempoInicial = clock();
-        // melhorCaminho = gerarCaminhoInicialSequencial();
-        // melhorDistancia = distanciaCaminho(melhorCaminho);
+        // Gera caminho inicial
         solveVizinhoMaisProximo(1);
         float diferencaDistancia, melhorDiferencaDistancia;
         int contadorSemMelhora = 0, maximoSemMelhora = 1;
         int iter = 0, maxIteracoes = 10000;
         int i, j, melhor_i, melhor_j;
+
+        ofstream arq;
+        arq.open("logBestImprovement.txt", ios::out);
 
         // Cada vez que o 2-opt for executado sem melhorar a distância do caminho,
         // contadorSemMelhora é incrementado.
@@ -213,22 +209,12 @@ public:
         while (contadorSemMelhora < maximoSemMelhora && iter < maxIteracoes)
         {
             contadorSemMelhora++;
+            registraIteracao(arq, tempoInicial, iter, melhorDistancia);
 
-            float tempoAtual = (clock() - tempoInicial) / (float)CLOCKS_PER_SEC;
-            arq << "#########" << endl;
-            arq << "iter: " << iter << endl;
-            // arq << contadorSemMelhora << endl;
-            arq << "best improvement dist: " << melhorDistancia << endl;
-            arq << "t: " << tempoAtual << "s" << endl;
-
-            // Seleciona a melhor entre todas as soluções vizinhas.
+            // Seleciona a melhor entre as soluções vizinhas.
             for (i = 1; i < numVertices; i++)
             {
                 melhorDiferencaDistancia = 0;
-                // if(i%5000 == 0){
-                //     tempoAtual = (clock() - tempoInicial) / (float)CLOCKS_PER_SEC;
-                //     arq << "i: " << i << " t: " << tempoAtual << endl;
-                // }
                 for (j = i + 1; j < numVertices; j++)
                 {
                     diferencaDistancia = diferencaTroca2Opt(melhorCaminho, i, j);
@@ -241,7 +227,8 @@ public:
                     }
                 }
                 // Se existe uma solução vizinha que resulta em redução da distância
-                if(melhorDiferencaDistancia < 0){
+                if (melhorDiferencaDistancia < 0)
+                {
                     trocar2Opt(melhorCaminho, melhor_i, melhor_j);
                     melhorDistancia += melhorDiferencaDistancia;
                     contadorSemMelhora = 0;
@@ -250,11 +237,7 @@ public:
             iter++;
         }
 
-        float tempoAtual = (clock() - tempoInicial) / (float)CLOCKS_PER_SEC;
-        arq << "#########" << endl;
-        arq << "iter final:  " << iter << endl;
-        arq << "distancia final: " << melhorDistancia << endl;
-        arq << "t final: " << tempoAtual << "s" << endl;
+        registraIteracao(arq, tempoInicial, iter, melhorDistancia);
         arq.close();
 
         return melhorDistancia;
@@ -295,7 +278,7 @@ vector<string> tokenizar(string str)
 // da linha de comando.
 // Assume que a entrada está formatada de acordo com os exemplos.
 // Inicializa a posição 0 da linha de vértices com um vértice vazio.
-void inicializarTerminal(vector<Vertice> &listaVertices, int &tamanhoLista)
+void inicializarPorTerminal(vector<Vertice> &listaVertices, int &tamanhoLista)
 {
     string linhaEntrada;
     vector<string> listaTokens;
@@ -324,11 +307,11 @@ void inicializarTerminal(vector<Vertice> &listaVertices, int &tamanhoLista)
 // Assume que a entrada está formatada de acordo com os exemplos.
 // Inicializa a posição 0 da linha de vértices com um vértice vazio.
 // Retorna true caso o arquivo exista, false caso contrário
-bool inicializarArquivo(string nomeArquivo, vector<Vertice> &listaVertices, int &tamanhoLista)
+bool inicializarPorArquivo(string nomeArquivo, vector<Vertice> &listaVertices, int &tamanhoLista)
 {
     ifstream arq(nomeArquivo);
 
-    if(!arq.good())
+    if (!arq.good())
         return false;
 
     string linhaEntrada;
@@ -354,22 +337,27 @@ bool inicializarArquivo(string nomeArquivo, vector<Vertice> &listaVertices, int 
     return true;
 }
 
-int main(int argc, char** argv)
+int main(int argc, char **argv)
 {
     vector<Vertice> listaVertices;
     int tamanhoLista;
 
-    if(argc > 1){
-        if(inicializarArquivo(argv[1], listaVertices, tamanhoLista)){
+    if (argc > 1)
+    {
+        if (inicializarPorArquivo(argv[1], listaVertices, tamanhoLista))
+        {
             cout << "Inicialização completa" << endl;
-        } else {
+        }
+        else
+        {
             cout << "Erro na leitura do arquivo" << endl;
             return 0;
         }
     }
-    else{
+    else
+    {
         cout << "Insira o caso de teste" << endl;
-        inicializarTerminal(listaVertices, tamanhoLista);
+        inicializarPorTerminal(listaVertices, tamanhoLista);
     }
 
     PCVSolver pcvSolver(listaVertices, tamanhoLista);

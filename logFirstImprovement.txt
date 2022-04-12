@@ -1,0 +1,32 @@
+#
+Iteracao: 0
+Distancia: 2.85869e+07
+Tempo: 4.75s
+#
+Iteracao: 1
+Distancia: 2.62613e+07
+Tempo: 7.53125s
+#
+Iteracao: 2
+Distancia: 2.55138e+07
+Tempo: 10.2188s
+#
+Iteracao: 3
+Distancia: 2.52152e+07
+Tempo: 12.6406s
+#
+Iteracao: 4
+Distancia: 2.51629e+07
+Tempo: 15.0312s
+#
+Iteracao: 5
+Distancia: 2.51279e+07
+Tempo: 17.4531s
+#
+Iteracao: 6
+Distancia: 2.51233e+07
+Tempo: 20.125s
+#
+Iteracao: 7
+Distancia: 2.51233e+07
+Tempo: 23.0156s

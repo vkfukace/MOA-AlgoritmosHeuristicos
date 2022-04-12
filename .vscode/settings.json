@@ -6,6 +6,7 @@
     "vector": "cpp",
     "deque": "cpp",
     "cmath": "cpp",
-    "fstream": "cpp"
+    "fstream": "cpp",
+    "iosfwd": "cpp"
   }
 }

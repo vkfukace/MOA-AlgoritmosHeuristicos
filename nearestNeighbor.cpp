@@ -81,7 +81,7 @@ public:
         {
             cout << melhorCaminho[j] << " => ";
         }
-            cout << melhorCaminho[0] << endl;
+        cout << melhorCaminho[0] << endl;
     }
 
     // Imprime as coordenadas de todos os vértices na tela
@@ -94,7 +94,7 @@ public:
     }
 
     // Retorna o índice do vizinho mais próximo de verticeAtual
-    // Retorna também o índice deste vizinho na lista de vértices disponíveis e o tamanho da aresta formada;
+    // Retorna também o índice deste vizinho na lista de vértices disponíveis;
     int vizinhoMaisProximo(int verticeAtual, deque<int> idxVerticesDisponiveis, int &idxListaDisponiveis)
     {
         float distanciaCalc, tamanhoMenorAresta;
@@ -144,7 +144,6 @@ public:
 
         return melhorDistancia;
     }
-
 };
 
 // Separa a string em uma lista de tokens
@@ -181,7 +180,7 @@ vector<string> tokenizar(string str)
 // da linha de comando.
 // Assume que a entrada está formatada de acordo com os exemplos.
 // Inicializa a posição 0 da linha de vértices com um vértice vazio.
-void inicializarTerminal(vector<Vertice> &listaVertices, int &tamanhoLista)
+void inicializarPorTerminal(vector<Vertice> &listaVertices, int &tamanhoLista)
 {
     string linhaEntrada;
     vector<string> listaTokens;
@@ -210,11 +209,11 @@ void inicializarTerminal(vector<Vertice> &listaVertices, int &tamanhoLista)
 // Assume que a entrada está formatada de acordo com os exemplos.
 // Inicializa a posição 0 da linha de vértices com um vértice vazio.
 // Retorna true caso o arquivo exista, false caso contrário
-bool inicializarArquivo(string nomeArquivo, vector<Vertice> &listaVertices, int &tamanhoLista)
+bool inicializarPorArquivo(string nomeArquivo, vector<Vertice> &listaVertices, int &tamanhoLista)
 {
     ifstream arq(nomeArquivo);
 
-    if(!arq.good())
+    if (!arq.good())
         return false;
 
     string linhaEntrada;
@@ -240,22 +239,27 @@ bool inicializarArquivo(string nomeArquivo, vector<Vertice> &listaVertices, int 
     return true;
 }
 
-int main(int argc, char** argv)
+int main(int argc, char **argv)
 {
     vector<Vertice> listaVertices;
     int tamanhoLista;
 
-    if(argc > 1){
-        if(inicializarArquivo(argv[1], listaVertices, tamanhoLista)){
+    if (argc > 1)
+    {
+        if (inicializarPorArquivo(argv[1], listaVertices, tamanhoLista))
+        {
             cout << "Inicialização completa" << endl;
-        } else {
+        }
+        else
+        {
             cout << "Erro na leitura do arquivo" << endl;
             return 0;
         }
     }
-    else{
+    else
+    {
         cout << "Insira o caso de teste" << endl;
-        inicializarTerminal(listaVertices, tamanhoLista);
+        inicializarPorTerminal(listaVertices, tamanhoLista);
     }
 
     PCVSolver pcvSolver(listaVertices, tamanhoLista);

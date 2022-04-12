@@ -1,0 +1,44 @@
+#
+Iteracao: 0
+Distancia: 228202
+Tempo: 1.53125s
+#
+Iteracao: 1
+Distancia: 210265
+Tempo: 2.54688s
+#
+Iteracao: 2
+Distancia: 202818
+Tempo: 3.57812s
+#
+Iteracao: 3
+Distancia: 199415
+Tempo: 4.53125s
+#
+Iteracao: 4
+Distancia: 197780
+Tempo: 5.59375s
+#
+Iteracao: 5
+Distancia: 196596
+Tempo: 6.59375s
+#
+Iteracao: 6
+Distancia: 196101
+Tempo: 7.5s
+#
+Iteracao: 7
+Distancia: 195797
+Tempo: 8.39062s
+#
+Iteracao: 8
+Distancia: 195717
+Tempo: 9.21875s
+#
+Iteracao: 9
+Distancia: 195705
+Tempo: 10.0312s
+#
+Iteracao: 10
+Distancia: 195705
+Tempo: 10.8281s
